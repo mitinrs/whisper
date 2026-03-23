@@ -1,0 +1,44 @@
+services:
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: whisper
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Moscow
+      ASR_ENGINE: whisperx
+      ASR_MODEL: small
+      ASR_DEVICE: cpu
+      MODEL_IDLE_TIMEOUT: "300"
+      HF_TOKEN: "${HF_TOKEN}"
+    volumes:
+      - whisper_cache:/root/.cache
+    ports:
+      - "9100:9000"
+    networks:
+      - traefik_public
+
+  tg-bot:
+    build:
+      context: ../tg-bot
+      dockerfile: Dockerfile
+    container_name: tg-bot
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Moscow
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+      ALLOWED_USER_IDS: "${ALLOWED_USER_IDS}"
+      WHISPER_URL: "http://whisper:9000"
+      WHISPER_LANGUAGE: "ru"
+      OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}"
+      OPENROUTER_MODEL: "${OPENROUTER_MODEL}"
+    depends_on:
+      - whisper
+    networks:
+      - traefik_public
+
+volumes:
+  whisper_cache:
+
+networks:
+  traefik_public:
+    external: true

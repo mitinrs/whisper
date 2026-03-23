@@ -1,0 +1,8 @@
+stack.env
+*.env
+!*.env.example
+
+node_modules/
+dist/
+logs/
+or.txt

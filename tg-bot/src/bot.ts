@@ -1,0 +1,22 @@
+import { Bot } from 'grammy';
+import { config } from './config.js';
+import { authMiddleware } from './middleware/auth.js';
+import { handleVoice } from './handlers/voice.js';
+
+export function createBot(): Bot {
+  const bot = new Bot(config.botToken);
+
+  bot.use(authMiddleware(config.allowedUserIds));
+
+  bot.on([':voice', ':audio', ':video_note'], handleVoice);
+
+  bot.command('start', (ctx) =>
+    ctx.reply('Send me a voice message and I will transcribe it.'),
+  );
+
+  bot.catch((err) => {
+    console.error('Bot error:', err.error);
+  });
+
+  return bot;
+}
