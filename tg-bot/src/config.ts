@@ -12,6 +12,7 @@ export const config = {
   allowedUserIds: requireEnv('ALLOWED_USER_IDS').split(',').map(Number),
   whisperUrl: process.env.WHISPER_URL || 'http://whisper:9000',
   whisperLanguage: process.env.WHISPER_LANGUAGE || 'ru',
+  whisperTestMode: process.env.WHISPER_TEST_MODE === 'true',
   openrouterApiKey: requireEnv('OPENROUTER_API_KEY'),
   openrouterModel: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
 };

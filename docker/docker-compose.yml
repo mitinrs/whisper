@@ -1,21 +1,65 @@
+## --- EXPERIMENT: multi-model comparison ---
+## Original whisper service: ASR_MODEL=small, MODEL_IDLE_TIMEOUT=0, ports 9100:9000
+## Revert after experiment and set chosen ASR_MODEL
+
+x-whisper: &whisper-base
+  image: onerahmet/openai-whisper-asr-webservice:latest
+  restart: unless-stopped
+  environment: &whisper-env
+    TZ: Europe/Moscow
+    ASR_ENGINE: whisperx
+    ASR_DEVICE: cpu
+    MODEL_IDLE_TIMEOUT: "10"
+    HF_TOKEN: "${HF_TOKEN}"
+  volumes:
+    - whisper_cache:/root/.cache
+  networks:
+    - traefik_public
+
 services:
-  whisper:
-    image: onerahmet/openai-whisper-asr-webservice:latest
-    container_name: whisper
-    restart: unless-stopped
+  whisper-tiny:
+    <<: *whisper-base
+    container_name: whisper-tiny
     environment:
-      TZ: Europe/Moscow
-      ASR_ENGINE: whisperx
-      ASR_MODEL: small
-      ASR_DEVICE: cpu
-      MODEL_IDLE_TIMEOUT: "0"
-      HF_TOKEN: "${HF_TOKEN}"
-    volumes:
-      - whisper_cache:/root/.cache
+      <<: *whisper-env
+      ASR_MODEL: tiny
+
+  whisper-base:
+    <<: *whisper-base
+    container_name: whisper-base
+    environment:
+      <<: *whisper-env
+      ASR_MODEL: base
+
+  whisper:
+    <<: *whisper-base
+    container_name: whisper
     ports:
       - "9100:9000"
-    networks:
-      - traefik_public
+    environment:
+      <<: *whisper-env
+      ASR_MODEL: small
+
+  whisper-medium:
+    <<: *whisper-base
+    container_name: whisper-medium
+    environment:
+      <<: *whisper-env
+      ASR_MODEL: medium
+
+  whisper-large-v3:
+    <<: *whisper-base
+    container_name: whisper-large-v3
+    environment:
+      <<: *whisper-env
+      ASR_MODEL: large-v3
+
+  whisper-turbo:
+    <<: *whisper-base
+    container_name: whisper-turbo
+    environment:
+      <<: *whisper-env
+      ASR_MODEL: large-v3-turbo
 
   tg-bot:
     image: ghcr.io/mitinrs/whisper/tg-bot:latest
@@ -27,14 +71,20 @@ services:
       ALLOWED_USER_IDS: "${ALLOWED_USER_IDS}"
       WHISPER_URL: "http://whisper:9000"
       WHISPER_LANGUAGE: "ru"
+      WHISPER_TEST_MODE: "true"
       OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}"
       OPENROUTER_MODEL: "${OPENROUTER_MODEL}"
       HTTP_PROXY: http://xray:10801
       HTTPS_PROXY: http://xray:10801
-      NO_PROXY: localhost,127.0.0.1,whisper,172.16.0.0/12,10.0.0.0/8
+      NO_PROXY: localhost,127.0.0.1,whisper,whisper-tiny,whisper-base,whisper-medium,whisper-large-v3,whisper-turbo,172.16.0.0/12,10.0.0.0/8
       NODE_OPTIONS: "--use-env-proxy"
     depends_on:
       - whisper
+      - whisper-tiny
+      - whisper-base
+      - whisper-medium
+      - whisper-large-v3
+      - whisper-turbo
     networks:
       - traefik_public
 
