@@ -9,6 +9,7 @@ const nativeFetch: typeof globalThis.fetch = (...args) => globalThis.fetch(...ar
 export function createBot(): Bot {
   const bot = new Bot(config.botToken, {
     client: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fetch: nativeFetch as any,
     },
   });
