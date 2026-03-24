@@ -1,4 +1,9 @@
+import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
 import { createBot } from "./bot.js";
+
+// Use EnvHttpProxyAgent which respects HTTP_PROXY, HTTPS_PROXY, and NO_PROXY
+setGlobalDispatcher(new EnvHttpProxyAgent());
+console.log("Proxy dispatcher set (EnvHttpProxyAgent)");
 
 const bot = createBot();
 
