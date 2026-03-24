@@ -54,7 +54,7 @@ async function handleTestMode(ctx: Context, audioBuffer: Buffer, filename: strin
     try {
       // Cold start (includes model load)
       const coldStart = Date.now();
-      const rawCold = await transcribe(audioBuffer, filename, model.url);
+      await transcribe(audioBuffer, filename, model.url);
       const coldTime = ((Date.now() - coldStart) / 1000).toFixed(1);
 
       await ctx.api.editMessageText(
