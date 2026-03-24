@@ -8,7 +8,7 @@ services:
       ASR_ENGINE: whisperx
       ASR_MODEL: small
       ASR_DEVICE: cpu
-      MODEL_IDLE_TIMEOUT: "300"
+      MODEL_IDLE_TIMEOUT: "0"
       HF_TOKEN: "${HF_TOKEN}"
     volumes:
       - whisper_cache:/root/.cache
@@ -31,6 +31,10 @@ services:
       WHISPER_LANGUAGE: "ru"
       OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}"
       OPENROUTER_MODEL: "${OPENROUTER_MODEL}"
+      HTTP_PROXY: http://xray:10801
+      HTTPS_PROXY: http://xray:10801
+      NO_PROXY: localhost,127.0.0.1,whisper,172.16.0.0/12,10.0.0.0/8
+      NODE_OPTIONS: "--use-env-proxy"
     depends_on:
       - whisper
     networks:
