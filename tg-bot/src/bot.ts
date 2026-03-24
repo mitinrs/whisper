@@ -3,8 +3,17 @@ import { config } from "./config.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { handleVoice } from "./handlers/voice.js";
 
+// grammY bundles its own fetch that bypasses Node's global proxy.
+// Re-export native fetch so --use-env-proxy is respected.
+const nativeFetch: typeof globalThis.fetch = (...args) => globalThis.fetch(...args);
+
 export function createBot(): Bot {
-  const bot = new Bot(config.botToken);
+  const bot = new Bot(config.botToken, {
+    client: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      fetch: nativeFetch as any,
+    },
+  });
 
   bot.use(authMiddleware(config.allowedUserIds));
 
