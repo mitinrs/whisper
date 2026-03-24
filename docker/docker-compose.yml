@@ -18,9 +18,7 @@ services:
       - traefik_public
 
   tg-bot:
-    build:
-      context: ../tg-bot
-      dockerfile: Dockerfile
+    image: ghcr.io/mitinrs/whisper/tg-bot:latest
     container_name: tg-bot
     restart: unless-stopped
     environment:
